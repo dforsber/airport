@@ -1,3 +1,7 @@
+> **NOTE!** This is fork from https://github.com/Query-farm/airport and [includes the support for `CREATE VIEW` statement as in the PR#20](https://github.com/Query-farm/airport/pull/20). The "Building the extension" instructions are updated to use this fork with the branch that includes the CREATE VIEW support.
+
+----
+
 # Airport Extension for DuckDB
 
 The **Airport** extension brings [Arrow Flight](https://arrow.apache.org/docs/format/Flight.html) support to [DuckDB](https://duckdb.org), enabling DuckDB to query, modify, and store data via Arrow Flight servers. A DuckDB extension is a plugin that expands DuckDB's core functionality by adding new capabilities.
@@ -13,7 +17,7 @@ Visit the [documentation for this extension](https://airport.query.farm).
 ```sh
 # Clone this repo with submodules.
 # duckdb and extension-ci-tools are submodules.
-git clone --recursive git@github.com:Query-farm/duckdb-airport-extension
+git clone --recursive git@github.com:dforsber/airport.git
 
 # Clone the vcpkg repo
 git clone https://github.com/Microsoft/vcpkg.git
@@ -23,7 +27,7 @@ git clone https://github.com/Microsoft/vcpkg.git
 export VCPKG_TOOLCHAIN_PATH=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 # Build the extension
-make
+cd airport && git checkout create-materialized-view-support && make 
 
 # If you have ninja installed, you can use it to speed up the build
 # GEN=ninja make
