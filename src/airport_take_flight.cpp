@@ -11,7 +11,6 @@
 #include <arrow/filesystem/api.h>
 #include <arrow/filesystem/localfs.h>
 
-#include "duckdb/main/extension_util.hpp"
 #include "duckdb/main/secret/secret_manager.hpp"
 #include "duckdb/planner/operator/logical_get.hpp"
 #include "duckdb/common/types/uuid.hpp"
@@ -905,12 +904,10 @@ namespace duckdb
           throw AirportFlightException(server_location, "Empty uri in data URI");
         }
 
-        // FIX THIS.
-
         if (location_data.format == "parquet")
         {
           auto &instance = DatabaseInstance::GetDatabase(context);
-          auto &parquet_scan_entry = ExtensionUtil::GetTableFunction(instance, "parquet_scan");
+          auto &parquet_scan_entry = AirportGetTableFunction(instance, "parquet_scan");
           auto &parquet_scan = parquet_scan_entry.functions.functions[0];
 
           // So the problem here is that we need to pass the actual return_types and return_names
@@ -1099,7 +1096,7 @@ namespace duckdb
     return bind_info;
   }
 
-  void AirportAddTakeFlightFunction(DatabaseInstance &instance)
+  void AirportAddTakeFlightFunction(ExtensionLoader &loader)
   {
 
     auto take_flight_function_set = TableFunctionSet("airport_take_flight");
@@ -1155,7 +1152,7 @@ namespace duckdb
 
     take_flight_function_set.AddFunction(take_flight_function_with_pointer);
 
-    ExtensionUtil::RegisterFunction(instance, take_flight_function_set);
+    loader.RegisterFunction(take_flight_function_set);
   }
 
   std::string AirportNameForField(const string &name, idx_t col_idx)

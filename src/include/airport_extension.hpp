@@ -60,13 +60,13 @@ namespace duckdb
 	class AirportExtension : public Extension
 	{
 	public:
-		void Load(DuckDB &db) override;
+		void Load(ExtensionLoader &loader) override;
 		std::string Name() override;
 		std::string Version() const override;
 	};
 
-	void AirportAddListFlightsFunction(DatabaseInstance &instance);
-	void AirportAddTakeFlightFunction(DatabaseInstance &instance);
-	void AirportAddActionFlightFunction(DatabaseInstance &instance);
+	void AirportAddListFlightsFunction(ExtensionLoader &loader);
+	void AirportAddTakeFlightFunction(ExtensionLoader &loader);
+	void AirportAddActionFlightFunction(ExtensionLoader &loader);
 
 } // namespace duckdb

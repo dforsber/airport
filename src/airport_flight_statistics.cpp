@@ -6,7 +6,6 @@
 #include <arrow/flight/types.h>
 #include <arrow/buffer.h>
 
-#include "duckdb/main/extension_util.hpp"
 #include "duckdb/main/secret/secret_manager.hpp"
 #include "duckdb/planner/operator/logical_get.hpp"
 #include "duckdb/common/types/uuid.hpp"

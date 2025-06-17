@@ -16,4 +16,6 @@ namespace duckdb
       bool skip_rowid_column);
 
   bool AirportFieldMetadataIsRowId(const char *metadata);
+
+  TableFunctionCatalogEntry &AirportGetTableFunction(DatabaseInstance &db, const string &name);
 }

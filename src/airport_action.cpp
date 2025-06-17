@@ -4,7 +4,6 @@
 
 // Arrow includes.
 #include <arrow/flight/client.h>
-#include "duckdb/main/extension_util.hpp"
 
 #include "duckdb/main/secret/secret_manager.hpp"
 
@@ -187,7 +186,7 @@ namespace duckdb
     output.SetCardinality(1);
   }
 
-  void AirportAddActionFlightFunction(DatabaseInstance &instance)
+  void AirportAddActionFlightFunction(ExtensionLoader &loader)
   {
     auto do_action_functions = TableFunctionSet("airport_action");
 
@@ -217,7 +216,7 @@ namespace duckdb
 
     do_action_functions.AddFunction(without_parameter);
 
-    ExtensionUtil::RegisterFunction(instance, do_action_functions);
+    loader.RegisterFunction(do_action_functions);
   }
 
 }

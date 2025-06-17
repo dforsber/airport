@@ -4,7 +4,6 @@
 
 #include "duckdb.hpp"
 #include "duckdb/common/exception.hpp"
-#include "duckdb/main/extension_util.hpp"
 #include <arrow/c/bridge.h>
 
 #include <arrow/flight/client.h>
@@ -24,6 +23,7 @@
 #include "msgpack.hpp"
 #include "airport_secrets.hpp"
 #include "airport_location_descriptor.hpp"
+#include "airport_schema_utils.hpp"
 
 /// File copied from
 /// https://github.com/duckdb/duckdb-wasm/blob/0ad10e7db4ef4025f5f4120be37addc4ebe29618/lib/src/arrow_stream_buffer.cc
@@ -49,7 +49,7 @@ namespace duckdb
     auto &instance = DatabaseInstance::GetDatabase(context);
 
     // This should raise an error if the function is unknown.
-    auto &function_entry = ExtensionUtil::GetTableFunction(instance, function_call_data.function_name);
+    auto &function_entry = AirportGetTableFunction(instance, function_call_data.function_name);
 
     // Now we need to deserialize the Arrow table that was serialized.
     // in IPC format and convert it to a DuckDB DataChunk so we can

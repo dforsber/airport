@@ -43,8 +43,6 @@
 #include "storage/airport_alter_parameters.hpp"
 #include "storage/airport_scalar_function_set.hpp"
 
-#include "duckdb/main/extension_util.hpp"
-
 namespace duckdb
 {
 

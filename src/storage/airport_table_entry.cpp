@@ -5,7 +5,6 @@
 #include "storage/airport_transaction.hpp"
 #include "duckdb/storage/statistics/base_statistics.hpp"
 #include "duckdb/storage/table_storage_info.hpp"
-#include "duckdb/main/extension_util.hpp"
 #include "duckdb/main/database.hpp"
 #include "duckdb/main/secret/secret_manager.hpp"
 #include "duckdb/catalog/catalog_entry/table_function_catalog_entry.hpp"
@@ -17,6 +16,7 @@
 #include "duckdb/parser/parsed_data/alter_table_info.hpp"
 #include "storage/airport_alter_parameters.hpp"
 #include "duckdb/planner/tableref/bound_at_clause.hpp"
+#include "airport_schema_utils.hpp"
 
 namespace flight = arrow::flight;
 
@@ -215,7 +215,7 @@ namespace duckdb
   TableFunction AirportTableEntry::GetScanFunction(ClientContext &context, unique_ptr<FunctionData> &bind_data, const EntryLookupInfo &lookup)
   {
     auto &db = DatabaseInstance::GetDatabase(context);
-    auto &airport_take_flight_function_set = ExtensionUtil::GetTableFunction(db, "airport_take_flight");
+    auto &airport_take_flight_function_set = AirportGetTableFunction(db, "airport_take_flight");
     auto airport_take_flight_function = airport_take_flight_function_set.functions.GetFunctionByArguments(
         context,
         {LogicalType::POINTER, LogicalType::POINTER, LogicalType::VARCHAR});

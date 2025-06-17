@@ -1,8 +1,5 @@
-#define DUCKDB_EXTENSION_MAIN
-
 #include "airport_extension.hpp"
 #include "duckdb.hpp"
-#include "duckdb/main/extension_util.hpp"
 
 #include "duckdb/main/secret/secret_manager.hpp"
 #include "duckdb/parser/parsed_data/attach_info.hpp"
@@ -125,10 +122,9 @@ namespace duckdb
         result.Reference(val);
     }
 
-    void AirportAddUserAgentFunction(DatabaseInstance &instance)
+    void AirportAddUserAgentFunction(ExtensionLoader &loader)
     {
-        ExtensionUtil::RegisterFunction(
-            instance,
+        loader.RegisterFunction(
             ScalarFunction(
                 "airport_user_agent",
                 {},
@@ -136,7 +132,7 @@ namespace duckdb
                 get_user_agent));
     }
 
-    static void RegisterTableMacro(DatabaseInstance &db, const string &name, const string &query,
+    static void RegisterTableMacro(ExtensionLoader &loader, const string &name, const string &query,
                                    const vector<string> &params, const child_list_t<Value> &named_params)
     {
         Parser parser;
@@ -162,10 +158,10 @@ namespace duckdb
         info.internal = true;
         info.macros.push_back(std::move(func));
 
-        ExtensionUtil::RegisterFunction(db, info);
+        loader.RegisterFunction(info);
     }
 
-    static void AirportAddListDatabasesMacro(DatabaseInstance &instance)
+    static void AirportAddListDatabasesMacro(ExtensionLoader &loader)
     {
         child_list_t<Value> named_params = {
             //            {"auth_token", Value()},
@@ -174,7 +170,7 @@ namespace duckdb
         };
 
         RegisterTableMacro(
-            instance,
+            loader,
             "airport_databases",
             "select * from airport_take_flight(server_location, ['__databases'])",
             //            "select * from airport_take_flight(server_location, ['__databases'], auth_token=auth_token, secret=secret, headers=headers)",
@@ -182,33 +178,33 @@ namespace duckdb
             named_params);
     }
 
-    static void LoadInternal(DatabaseInstance &instance)
+    static void LoadInternal(ExtensionLoader &loader)
     {
         curl_global_init(CURL_GLOBAL_DEFAULT);
 
-        AirportAddListFlightsFunction(instance);
-        AirportAddTakeFlightFunction(instance);
-        AirportAddUserAgentFunction(instance);
-        AirportAddActionFlightFunction(instance);
+        AirportAddListFlightsFunction(loader);
+        AirportAddTakeFlightFunction(loader);
+        AirportAddUserAgentFunction(loader);
+        AirportAddActionFlightFunction(loader);
 
         // So to create a new macro for airport_list_databases
         // that calls airport_take_flight with a fixed flight descriptor
         // of PATH /__databases
 
-        AirportAddListDatabasesMacro(instance);
+        AirportAddListDatabasesMacro(loader);
 
         SecretType secret_type;
         secret_type.name = "airport";
         secret_type.deserializer = KeyValueSecret::Deserialize<KeyValueSecret>;
         secret_type.default_provider = "config";
 
-        ExtensionUtil::RegisterSecretType(instance, secret_type);
+        loader.RegisterSecretType(secret_type);
 
         CreateSecretFunction airport_secret_function = {"airport", "config", CreateAirportSecretFunction};
         AirportSetSecretParameters(airport_secret_function);
-        ExtensionUtil::RegisterFunction(instance, airport_secret_function);
+        loader.RegisterFunction(airport_secret_function);
 
-        auto &config = DBConfig::GetConfig(instance);
+        auto &config = DBConfig::GetConfig(loader.GetDatabaseInstance());
         config.storage_extensions["airport"] = make_uniq<AirportCatalogStorageExtension>();
 
         OptimizerExtension airport_optimizer;
@@ -216,9 +212,9 @@ namespace duckdb
         config.optimizer_extensions.push_back(std::move(airport_optimizer));
     }
 
-    void AirportExtension::Load(DuckDB &db)
+    void AirportExtension::Load(ExtensionLoader &loader)
     {
-        LoadInternal(*db.instance);
+        LoadInternal(loader);
     }
     std::string AirportExtension::Name()
     {
@@ -234,18 +230,8 @@ namespace duckdb
 
 extern "C"
 {
-    DUCKDB_EXTENSION_API void airport_init(duckdb::DatabaseInstance &db)
+    DUCKDB_CPP_EXTENSION_ENTRY(airport, loader)
     {
-        duckdb::DuckDB db_wrapper(db);
-        db_wrapper.LoadExtension<duckdb::AirportExtension>();
-    }
-
-    DUCKDB_EXTENSION_API const char *airport_version()
-    {
-        return duckdb::DuckDB::LibraryVersion();
+        duckdb::LoadInternal(loader);
     }
 }
-
-#ifndef DUCKDB_EXTENSION_MAIN
-#error DUCKDB_EXTENSION_MAIN not defined
-#endif

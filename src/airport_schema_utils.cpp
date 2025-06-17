@@ -113,4 +113,24 @@ namespace duckdb
     QueryResult::DeduplicateColumns(*names);
   }
 
+  static optional_ptr<CatalogEntry> TryGetEntry(DatabaseInstance &db, const string &name, CatalogType type)
+  {
+    D_ASSERT(!name.empty());
+    auto &system_catalog = Catalog::GetSystemCatalog(db);
+    auto data = CatalogTransaction::GetSystemTransaction(db);
+    auto &schema = system_catalog.GetSchema(data, DEFAULT_SCHEMA);
+    return schema.GetEntry(data, type, name);
+  }
+
+  TableFunctionCatalogEntry &AirportGetTableFunction(DatabaseInstance &db, const string &name)
+  {
+    auto catalog_entry = TryGetEntry(db, name, CatalogType::TABLE_FUNCTION_ENTRY);
+
+    if (!catalog_entry)
+    {
+      throw InvalidInputException("Function with name \"%s\" not found, check to see if all necessary extensions are loaded.", name);
+    }
+    return catalog_entry->Cast<TableFunctionCatalogEntry>();
+  }
+
 }

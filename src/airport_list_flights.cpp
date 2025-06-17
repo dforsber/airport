@@ -4,7 +4,6 @@
 
 // Arrow includes.
 #include <arrow/flight/client.h>
-#include "duckdb/main/extension_util.hpp"
 
 #include "duckdb/main/secret/secret_manager.hpp"
 
@@ -339,7 +338,7 @@ namespace duckdb
     bind_data.json_filters = json_result;
   }
 
-  void AirportAddListFlightsFunction(DatabaseInstance &instance)
+  void AirportAddListFlightsFunction(ExtensionLoader &loader)
   {
     auto list_flights_functions = TableFunctionSet("airport_flights");
 
@@ -370,7 +369,7 @@ namespace duckdb
     without_criteria.filter_pushdown = false;
     list_flights_functions.AddFunction(without_criteria);
 
-    ExtensionUtil::RegisterFunction(instance, list_flights_functions);
+    loader.RegisterFunction(list_flights_functions);
   }
 
 }
