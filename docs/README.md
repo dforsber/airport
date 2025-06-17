@@ -27,7 +27,7 @@ git clone https://github.com/Microsoft/vcpkg.git
 export VCPKG_TOOLCHAIN_PATH=`pwd`/vcpkg/scripts/buildsystems/vcpkg.cmake
 
 # Build the extension
-cd airport && git checkout create-materialized-view-support && make 
+cd airport && make 
 
 # If you have ninja installed, you can use it to speed up the build
 # GEN=ninja make
